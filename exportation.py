@@ -193,7 +193,7 @@ def guardado_s():
         cur.execute(f'SELECT fecha_de_salida FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
         existed_date= cur.fetchone()
         if existed_date[0]:
-            return jsonify({'error': f'Este numero de orden ya tiene una fecha de salida: XXX {existed_date[0]}'}), 400 # MANDA ERROR.
+            return jsonify({'error': f'Este numero de orden ya tiene una fecha de salida: -{existed_date[0]}-'}), 400 # MANDA ERROR.
         
         try:
             cur.execute(f'SELECT fecha FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
