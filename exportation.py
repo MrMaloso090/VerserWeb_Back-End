@@ -48,7 +48,8 @@ def all__SQL_tables_creation():
         'fecha': 'VARCHAR(250)',
         'fecha_de_salida': 'VARCHAR(250)',
         'tardanza': 'INT',
-        'id_usuario': 'INT'
+        'id_usuario': 'INT',
+        'id_usuario_salida': 'INT'
     }
     dannos_dic = {
         'numero_de_orden':'BIGINT PRIMARY KEY', 
@@ -180,36 +181,45 @@ def guardado_idr():
 # DEF PARA GUARDAR LA FECHA DE **SALIDA** DE SU RESPECTTIVO NUMERO DE ORDEN.
 def guardado_s():
     data = request.get_json()
-    numero= data.get('numero_de_orden')
+    numero = data.get('numero_de_orden')
+    usuario_salida = data.get('usuario')
 
     with mysql.connector.connect(**connection) as conn:
         cur= conn.cursor(buffered=True)   
 
-        cur.execute(f'SELECT * FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
-        used= cur.fetchone()
-        if not used:
+        cur.execute('SELECT numero_de_orden, fecha_de_salida, fecha  FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
+        respuesta= cur.fetchone()
+
+        if not respuesta: 
             return jsonify({'error': 'Este numero de orden no se encuentra registrado'}), 400 # MANDA ERROR.
         
-        cur.execute(f'SELECT fecha_de_salida FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
-        existed_date= cur.fetchone()
-        if existed_date[0]:
-            return jsonify({'error': f'Este numero de orden ya tiene una fecha de salida: -{existed_date[0]}-'}), 400 # MANDA ERROR.
+        if respuesta[1]:
+            return jsonify({'error': f'Este numero de orden ya tiene una fecha de salida: -{respuesta[1]}-'}), 400 # MANDA ERROR.
         
         try:
-            cur.execute(f'SELECT fecha FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
-            fecha_i = (cur.fetchone())[0]
-            fecha_s= datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M")
-            f_i = datetime.strptime(str(fecha_i), "%Y-%m-%d %H:%M")
-            f_s = datetime.strptime(str(fecha_s), "%Y-%m-%d %H:%M")
-            tardanza = int(abs((f_s - f_i).days))
-        except:
-            return jsonify({'error': 'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS, ERROR AL INTENTAR ECONCONTRAR LA TARDANZA ENTRE LAS FECHAS'}), 400 # MANDA ERROR.
+            fecha_de_ingreso = datetime.strptime(str(respuesta[2]), "%Y-%m-%d %H:%M")
+            fecha_de_salida = datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M")
+            tardanza = (datetime.strptime(fecha_de_salida, "%Y-%m-%d %H:%M") - fecha_de_ingreso).days
+        except Exception as e:
+            return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS, ERROR AL INTENTAR ECONCONTRAR LA TARDANZA ENTRE LAS FECHAS \n{e}'}), 400 # MANDA ERROR.
         
         try:
-            cur.execute('UPDATE _ingresos_y_salidas SET fecha_de_salida = %s, tardanza = %s WHERE numero_de_orden = %s', (fecha_s, tardanza, numero))
+            cur.execute('SELECT id FROM usuario WHERE usuario = %s', (usuario_salida,))
+            id_usuario_salida = cur.fetchone()
+            if not id_usuario_salida:
+                cur.execute('INSERT IGNORE INTO usuario(usuario) VALUES(%s)', (usuario_salida,))
+                conn.commit()
+                cur.execute('SELECT id FROM usuario WHERE usuario = %s', (usuario_salida,))
+                id_usuario_salida = cur.fetchone()
+
+            if id_usuario_salida: id_usuario_salida = id_usuario_salida[0]
+            else: id_usuario_salida = None
+
+
+            cur.execute('UPDATE _ingresos_y_salidas SET fecha_de_salida = %s, tardanza = %s, id_usuario_salida = %s WHERE numero_de_orden = %s', (fecha_de_salida, int(tardanza), id_usuario_salida, numero))
             conn.commit()
-        except:
-            return jsonify({'error': 'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS'}), 400 # MANDA ERROR.
+        except Exception as e:
+            return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{e}'}), 400 # MANDA ERROR.
         
         return jsonify({'complete': 'Los datos se han guardado correctamente'}) # MENSAGE DE VALIDACION
     
