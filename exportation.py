@@ -97,6 +97,7 @@ def all__SQL_tables_creation():
     normalization_tables('responsable')
     normalization_tables('material')
     normalization_tables('usuario')
+    normalization_tables('usuario_salida')
 
 
 # DEF PARA AGREGAR LOS DATOS DE LOS QUESTIONARIOS A LA BASE DE DATOS MySQL. *** NO GUARDA LAS SALIDAS ***
@@ -204,12 +205,12 @@ def guardado_s():
             return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS, ERROR AL INTENTAR ECONCONTRAR LA TARDANZA ENTRE LAS FECHAS \n{e}'}), 400 # MANDA ERROR.
         
         try:
-            cur.execute('SELECT id FROM usuario WHERE usuario = %s', (usuario_salida,))
+            cur.execute('SELECT id FROM usuario_salida WHERE usuario_salida = %s', (usuario_salida,))
             id_usuario_salida = cur.fetchone()
             if not id_usuario_salida:
-                cur.execute('INSERT IGNORE INTO usuario(usuario) VALUES(%s)', (usuario_salida,))
+                cur.execute('INSERT IGNORE INTO usuario_salida(usuario_salida) VALUES(%s)', (usuario_salida,))
                 conn.commit()
-                cur.execute('SELECT id FROM usuario WHERE usuario = %s', (usuario_salida,))
+                cur.execute('SELECT id FROM usuario_salida WHERE usuario_salida = %s', (usuario_salida,))
                 id_usuario_salida = cur.fetchone()
 
             if id_usuario_salida: id_usuario_salida = id_usuario_salida[0]
