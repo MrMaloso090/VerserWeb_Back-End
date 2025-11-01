@@ -199,8 +199,10 @@ def guardado_s():
         
         try:
             fecha_de_ingreso = datetime.strptime(str(respuesta[2]), "%Y-%m-%d %H:%M")
-            fecha_de_salida = datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M")
-            tardanza = (datetime.strptime(fecha_de_salida, "%Y-%m-%d %H:%M") - fecha_de_ingreso).days
+            fecha_de_salida = datetime.now(pytz.timezone('America/Bogota')).replace(second=0, microsecond=0)
+            tardanza = (fecha_de_salida.date() - fecha_de_ingreso.date()).days
+            
+            fecha_de_salida = fecha_de_salida.strftime("%Y-%m-%d %H:%M")
         except Exception as e:
             return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS, ERROR AL INTENTAR ECONCONTRAR LA TARDANZA ENTRE LAS FECHAS \n{e}'}), 400 # MANDA ERROR.
         
