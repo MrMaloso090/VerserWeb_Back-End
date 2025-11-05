@@ -107,18 +107,46 @@ def guardado_idr():
     normalized_columns= ('cliente', 'tipo_de_ingresos', 'motivo_de_garantia', 'tipo_de_lente', 'ar', 'estado_de_montura', 
                          'condicion_especial', 'area_responsable', 'lente', 'motivo', 'responsable', 'material', 'usuario')
     
-    colums_list=[]
-    valeus_list=[]
+    columns_list=[]
+    values_list=[]
     with mysql.connector.connect(**connection) as conn:
         cur= conn.cursor(buffered=True)
 
         table= data.get('tabla')
-        # COMPROVANTE DE QUE EL NUMERO DE ORDEN NO SE ENCUENTRA EN LA BASE DE DATOS, EN TAL CASO, MANDAR ERROR.
+
+        # COMPROBANTE DE QUE EL NUMERO DE ORDEN NO SE ENCUENTRA EN LA BASE DE DATOS, EN TAL CASO, MANDAR ERROR.
         numero= data.get('numero_de_orden')
         cur.execute(f'SELECT * FROM {table} WHERE numero_de_orden= %s', (numero,))
         used= cur.fetchone()
         if used:
             return jsonify({'error': 'Este numero de orden ya se encuentra registrado'}), 400 # MANDA ERROR.
+        
+        # COMPRUEVA QUE EL NUMERO DE ORDEN INGRESADO EN *DANNOS* O *REPROCESOS* SE ENCUENTRE PREVIAMENTE INGRESADO EN LA TABLA DE INGRESOS
+        if table == '_dannos' or table == '_reprocesos':
+            cur.execute('SELECT id_cliente, numero_de_gaveta FROM _ingresos_y_salidas WHERE numero_de_orden= %s', (numero,))
+            tupla = cur.fetchone()
+
+            if not tupla:
+                return jsonify({'error': 'Este numero de orden no se encuentra registrado entre los ingresos'}), 400 # MANDA ERROR.
+            
+            # AGREGA EL CLIENTE Y LA GAVETA DEL RESPECTIVO NUMERO DE ORDEN Y LO CUARDA EN LAS LISTAS PARA SER AGREGADOS A SU TABLA
+            id_c = tupla[0]
+            g = tupla[1]
+            cur.execute('SELECT cliente FROM cliente WHERE id= %s', (id_c,))
+            c = cur.fetchone()
+            columns_list.append('cliente')
+            values_list.append(c[0])
+            columns_list.append('numero_de_gaveta')
+            values_list.append(g)
+
+        # COMPROBANTE DE QUE EL NUMERDO DE ORIGEN DE LA GARANTIA SI SE ENCUENTRE REGISTRADO COMO UNA ENTRADA ANTERIOR.
+        if table == '_ingresos_y_salidas':
+            orden_de_origen = data.get('orden_de_origen_de_la_garantia')
+            if orden_de_origen:
+                cur.execute('SELECT numero_de_orden FROM _ingresos_y_salidas WHERE numero_de_orden = %s', (orden_de_origen,))
+                listed_order = cur.fetchone()
+                if not listed_order:
+                    return jsonify({'error': 'El número de *Orden de Origen de la Garantía* no se encuentra registrado como un ingreso previo existente.'}), 400 # MANDA ERROR.
 
         try:
             for key, value in data.items():
@@ -136,15 +164,15 @@ def guardado_idr():
                     if id: id= id[0]
                     else: id= None
                     
-                    colums_list.append(f'id_{key}')
-                    valeus_list.append(id)
+                    columns_list.append(f'id_{key}')
+                    values_list.append(id)
                     continue
 
-                colums_list.append(key)
-                valeus_list.append(value)
+                columns_list.append(key)
+                values_list.append(value)
 
-            colums_list.append('fecha')
-            valeus_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
+            columns_list.append('fecha')
+            values_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
 
 
             # FUNCION PARA CALCULAR EL PRECIO DE LOS DANNOS
@@ -158,16 +186,16 @@ def guardado_idr():
                 costo_material= cur.fetchone()
                 costo_final= costo_material[0] * cantidad
 
-                colums_list.append('costo')
-                valeus_list.append(costo_final)
+                columns_list.append('costo')
+                values_list.append(costo_final)
             # *FINAL* DE LA FUNCION QUE CALCULAR EL PRECIO DE LOS DANNOS
 
 
-            colums= ', '.join(colums_list)
-            indicator_list= (['%s'] * len(valeus_list))
+            colums= ', '.join(columns_list)
+            indicator_list= (['%s'] * len(values_list))
             indicator= ', '.join(indicator_list)
             
-            cur.execute(f'INSERT INTO {table}({colums}) VALUES({indicator})', valeus_list)
+            cur.execute(f'INSERT INTO {table}({colums}) VALUES({indicator})', values_list)
             conn.commit()
         except Exception as e:
             error_detalle = traceback.format_exc()
