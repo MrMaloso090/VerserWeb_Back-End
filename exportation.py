@@ -143,8 +143,10 @@ def guardado_idr():
         if table == '_ingresos_y_salidas':
             orden_de_origen = data.get('orden_de_origen_de_la_garantia')
             if orden_de_origen:
-                cur.execute('SELECT numero_de_orden FROM _ingresos_y_salidas WHERE numero_de_orden = %s', (orden_de_origen,))
+                cur.execute('SELECT * FROM _ingresos_y_salidas WHERE numero_de_orden = %s', (orden_de_origen,))
                 listed_order = cur.fetchone()
+                return jsonify({'error': 'Si Se Activo'}), 400 # MANDA ERROR.
+                
                 if not listed_order:
                     return jsonify({'error': 'El número de *Orden de Origen de la Garantía* no se encuentra registrado como un ingreso previo existente.'}), 400 # MANDA ERROR.
 
