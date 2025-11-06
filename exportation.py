@@ -132,10 +132,9 @@ def guardado_idr():
             # AGREGA EL CLIENTE Y LA GAVETA DEL RESPECTIVO NUMERO DE ORDEN Y LO CUARDA EN LAS LISTAS PARA SER AGREGADOS A SU TABLA
             id_c = tupla[0]
             g = tupla[1]
-            cur.execute('SELECT cliente FROM cliente WHERE id= %s', (id_c,))
-            c = cur.fetchone()
-            columns_list.append('cliente')
-            values_list.append(c[0])
+
+            columns_list.append('id_cliente')
+            values_list.append(id_c)
             columns_list.append('numero_de_gaveta')
             values_list.append(g)
 
