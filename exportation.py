@@ -115,8 +115,9 @@ def guardado_idr():
         table= data.get('tabla')
 
         # COMPROBANTE DE QUE EL NUMERO DE ORDEN NO SE ENCUENTRA EN LA BASE DE DATOS, EN TAL CASO, MANDAR ERROR.
+        numero= data.get('numero_de_orden')
+        
         if table == '_ingresos_y_salidas':
-            numero= data.get('numero_de_orden')
             cur.execute(f'SELECT * FROM {table} WHERE numero_de_orden= %s', (numero,))
             used= cur.fetchone()
             if used:
