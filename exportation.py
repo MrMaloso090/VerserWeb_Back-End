@@ -49,7 +49,8 @@ def all__SQL_tables_creation():
         'fecha_de_salida': 'VARCHAR(250)',
         'tardanza': 'INT',
         'id_usuario': 'INT',
-        'id_usuario_salida': 'INT'
+        'id_usuario_salida': 'INT',
+        'nota': 'TEXT'
     }
     dannos_dic = {
         'numero_de_orden':'BIGINT', 
