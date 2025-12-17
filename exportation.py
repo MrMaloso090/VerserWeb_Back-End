@@ -50,7 +50,8 @@ def all__SQL_tables_creation():
         'tardanza': 'INT',
         'id_usuario': 'INT',
         'id_usuario_salida': 'INT',
-        'nota': 'TEXT'
+        'nota': 'TEXT',
+        'nota_de_salida': 'TEXT'
     }
     dannos_dic = {
         'numero_de_orden':'BIGINT', 
@@ -213,6 +214,7 @@ def guardado_idr():
 def guardado_s():
     data = request.get_json()
     numero = data.get('numero_de_orden')
+    nota_de_salida = data.get('nota_de_salida')
     usuario_salida = data.get('usuario')
 
     with mysql.connector.connect(**connection) as conn:
@@ -249,7 +251,7 @@ def guardado_s():
             else: id_usuario_salida = None
 
 
-            cur.execute('UPDATE _ingresos_y_salidas SET fecha_de_salida = %s, tardanza = %s, id_usuario_salida = %s WHERE numero_de_orden = %s', (fecha_de_salida, int(tardanza), id_usuario_salida, numero))
+            cur.execute('UPDATE _ingresos_y_salidas SET fecha_de_salida = %s, tardanza = %s, id_usuario_salida = %s, nota_de_salida = %s WHERE numero_de_orden = %s', (fecha_de_salida, int(tardanza), id_usuario_salida, nota_de_salida, numero))
             conn.commit()
         except Exception as e:
             return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{e}'}), 400 # MANDA ERROR.
