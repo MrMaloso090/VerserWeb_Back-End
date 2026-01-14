@@ -126,13 +126,13 @@ def guardado_idr():
                 return jsonify({'error': 'Este numero de orden ya se encuentra registrado'}), 400 # MANDA ERROR.
             
             # COMPROBANTE DE QUE EL NUMERDO DE ORIGEN DE LA GARANTIA SI SE ENCUENTRE REGISTRADO COMO UNA ENTRADA ANTERIOR.
-            orden_de_origen = data.get('orden_de_origen_de_la_garantia')
-            if orden_de_origen:
-                cur.execute('SELECT * FROM _ingresos_y_salidas WHERE numero_de_orden = %s', (orden_de_origen,))
-                listed_order = cur.fetchone()
-                
-                if listed_order is None:
-                    return jsonify({'error': 'El número de *Orden de Origen de la Garantía* no se encuentra registrado como un ingreso previo existente.'}), 400 # MANDA ERROR.
+            #orden_de_origen = data.get('orden_de_origen_de_la_garantia')
+            #if orden_de_origen:
+            #    cur.execute('SELECT * FROM _ingresos_y_salidas WHERE numero_de_orden = %s', (orden_de_origen,))
+            #    listed_order = cur.fetchone()
+            #    
+            #    if listed_order is None:
+            #        return jsonify({'error': 'El número de *Orden de Origen de la Garantía* no se encuentra registrado como un ingreso previo existente.'}), 400 # MANDA ERROR.
                 
         
         # COMPRUEVA QUE EL NUMERO DE ORDEN INGRESADO EN *DANNOS* O *REPROCESOS* SE ENCUENTRE PREVIAMENTE INGRESADO EN LA TABLA DE INGRESOS
