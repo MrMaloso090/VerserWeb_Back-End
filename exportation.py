@@ -282,7 +282,8 @@ def coordinacion_exportacion_general():
                     if not id:
                         cur.execute(f'INSERT IGNORE INTO __{column} ({column}) VALUES (%s)', (valeu,))
                         conn.commit()
-                        id= cur.lastrowid
+                        cur.execute(f'SELECT id FROM __{column} WHERE {column}= %s', (valeu,))
+                        id= cur.fetchone()
                         if id: id= (id[0])
                         else: id= None
                     column_list.append(f'id_{column}')
