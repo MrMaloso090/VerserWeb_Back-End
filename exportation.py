@@ -284,8 +284,8 @@ def coordinacion_exportacion_general():
                         conn.commit()
                         cur.execute(f'SELECT id FROM __{column} WHERE {column}= %s', (valeu,))
                         id= cur.fetchone()
-                        if id: id= (id[0])
-                        else: id= None
+                    if id: id= (id[0])
+                    else: id= None
                     column_list.append(f'id_{column}')
                     valeu_list.append(id)
                     continue
