@@ -284,8 +284,8 @@ def coordinacion_exportacion_general():
                         conn.commit()
                         cur.execute(f'SELECT id FROM __{column} WHERE {column}= %s', (valeu,))
                         id= cur.fetchone()
-                    if id: id= (id[0])
-                    else: id= None
+                        if id: id= (id[0])
+                        else: id= None
                     column_list.append(f'id_{column}')
                     valeu_list.append(id)
                     continue
@@ -295,9 +295,6 @@ def coordinacion_exportacion_general():
 
             column_list.append('fecha_hora')
             valeu_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
-
-            print(column_list)
-            print(valeu_list)
 
             columns_str = ', '.join(column_list)
             placeholders_str = ', '.join(['%s'] * len(valeu_list))
