@@ -265,7 +265,7 @@ def guardado_s():
 # DEFINICION QUE TOMA LOS DATOS DE TODOS LOS DOCUMENTOS DE COORDINACION PARA CARGARLOS EN LA BASE DE DATOS, ESTA FUNCION ES GENERAL PARA TODOS LOS DOCUMENTOS DE COORDINACION.
 def coordinacion_exportacion_general():
     data= request.get_json()
-    table = data.get('title')
+    table = data.get('titulo')
     with mysql.connector.connect(**connection) as conn:
         cur= conn.cursor()
 
@@ -274,7 +274,7 @@ def coordinacion_exportacion_general():
             column_list = []
             valeu_list = []
             for column, valeu in data.items():
-                if column == 'title': continue
+                if column == 'titulo': continue
 
                 if column in normalized_columns:
                     cur.execute(f'SELECT id FROM __{column} WHERE {column}= %s', (valeu,))
