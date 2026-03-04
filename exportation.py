@@ -305,5 +305,5 @@ def coordinacion_exportacion_general():
         
         except Exception as e:
             error_detalle = traceback.format_exc()
-            return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{str(e)} \n{error_detalle}'}), 400
+            return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{str(e)} \n{error_detalle} \n{valeu_list} \n{column_list}'}), 400
     
