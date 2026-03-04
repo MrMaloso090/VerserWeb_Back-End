@@ -296,6 +296,9 @@ def coordinacion_exportacion_general():
             column_list.append('fecha_hora')
             valeu_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
 
+            print(column_list)
+            print(valeu_list)
+
             columns_str = ', '.join(column_list)
             placeholders_str = ', '.join(['%s'] * len(valeu_list))
             cur.execute(f'INSERT INTO {table} ({columns_str}) VALUES ({placeholders_str})', valeu_list)
