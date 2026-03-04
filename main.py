@@ -3,6 +3,7 @@ from importation import importar_tabla_mysql
 from importation import login_usuarios
 from exportation import guardado_idr
 from exportation import guardado_s
+from exportation import coordinacion_exportacion_general
 
 #IMPORTACION LIBRERIAS
 from flask import Flask, jsonify, request
@@ -43,6 +44,10 @@ def guardado_IDR():
 def guardado_S():
     return guardado_s()
 
+# ESTA FUNCION GUARDA LOS DATOS DE: SALIDAS.
+@app.route("/guardado_coordinacion_general", methods=["POST"])
+def Coordinacion_exportacion_general():
+    return coordinacion_exportacion_general()
 
 
 

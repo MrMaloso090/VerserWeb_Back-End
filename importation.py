@@ -1,13 +1,16 @@
 import mysql.connector
 from flask import Flask, jsonify, request
+from dotenv import load_dotenv
+import os
 
-
-## ERRAMIENTAS.
+# Carga las variables del .env
+load_dotenv()
+# CONECCION MySQL.
 connection = {
-    'user': 'root',
-    'password': 'VERSER1234',
-    'host': '34.31.173.184',
-    'database': 'verser-lab',
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PASSWORD'),
+    'host': os.environ.get('DB_HOST'),
+    'database': os.environ.get('DB_NAME'),
     'port': 3306}
 
 

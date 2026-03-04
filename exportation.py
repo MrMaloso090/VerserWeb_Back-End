@@ -3,14 +3,17 @@ from flask import Flask, jsonify, request
 from datetime import datetime
 import pytz
 import traceback
+from dotenv import load_dotenv
+import os
 
-
-## HERRAMIENTAS.
+# Carga las variables del .env
+load_dotenv()
+# CONECCION MySQL.
 connection = {
-    'user': 'root',
-    'password': 'VERSER1234',
-    'host': '34.31.173.184',
-    'database': 'verser-lab',
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PASSWORD'),
+    'host': os.environ.get('DB_HOST'),
+    'database': os.environ.get('DB_NAME'),
     'port': 3306}
 
 
@@ -257,4 +260,49 @@ def guardado_s():
             return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{e}'}), 400 # MANDA ERROR.
         
         return jsonify({'complete': 'Los datos se han guardado correctamente'}) # MENSAGE DE VALIDACION
+    
+
+# DEFINICION QUE TOMA LOS DATOS DE TODOS LOS DOCUMENTOS DE COORDINACION PARA CARGARLOS EN LA BASE DE DATOS, ESTA FUNCION ES GENERAL PARA TODOS LOS DOCUMENTOS DE COORDINACION.
+def coordinacion_exportacion_general():
+    data= request.get_json()
+    table = data.get('title')
+    with mysql.connector.connect(**connection) as conn:
+        cur= conn.cursor()
+
+        try:
+            normalized_columns= ('responsable', 'break', 'tratamiento')
+            column_list = []
+            valeu_list = []
+            for column, valeu in data.items():
+                if column == 'title': continue
+
+                if column in normalized_columns:
+                    cur.execute(f'SELECT id FROM __{column} WHERE {column}= %s', (valeu,))
+                    id= cur.fetchone()
+                    if not id:
+                        cur.execute(f'INSERT IGNORE INTO __{column} ({column}) VALUES (%s)', (valeu,))
+                        conn.commit()
+                        id= cur.lastrowid
+                        if id: id= (id[0])
+                        else: id= None
+                    column_list.append(f'id_{column}')
+                    valeu_list.append(id)
+                    continue
+                
+                column_list.append(column)
+                valeu_list.append(valeu)
+
+            column_list.append('fecha_hora')
+            valeu_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
+
+            columns_str = ', '.join(column_list)
+            placeholders_str = ', '.join(['%s'] * len(valeu_list))
+            cur.execute(f'INSERT INTO {table} ({columns_str}) VALUES ({placeholders_str})', valeu_list)
+            conn.commit()
+
+            return jsonify({'complete': 'Los datos se han guardado correctamente'}) # MENSAGE DE VALIDACION
+        
+        except Exception as e:
+            error_detalle = traceback.format_exc()
+            return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{str(e)} \n{error_detalle}'}), 400
     
