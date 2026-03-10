@@ -290,6 +290,7 @@ def coordinacion_exportacion_general():
                     valeu_list.append(id)
                     continue
                 
+                if valeu == '': valeu= None
                 column_list.append(column)
                 valeu_list.append(valeu)
 
