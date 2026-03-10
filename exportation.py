@@ -270,7 +270,7 @@ def coordinacion_exportacion_general():
         cur= conn.cursor()
 
         try:
-            normalized_columns= ('responsable', 'break', 'tratamiento')
+            normalized_columns= ('responsable', 'break', 'tratamiento', 'numero_del_ciclo')
             column_list = []
             valeu_list = []
             for column, valeu in data.items():
