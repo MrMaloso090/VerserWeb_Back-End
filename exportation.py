@@ -108,6 +108,7 @@ def all__SQL_tables_creation():
 # DEF PARA AGREGAR LOS DATOS DE LOS QUESTIONARIOS A LA BASE DE DATOS MySQL. *** NO GUARDA LAS SALIDAS ***
 def guardado_idr():
     data = request.get_json()
+    verificacion_de_autenticidad(data.get('usuario'))
 
     normalized_columns= ('cliente', 'tipo_de_ingresos', 'motivo_de_garantia', 'tipo_de_lente', 'ar', 'estado_de_montura', 
                          'condicion_especial', 'area_responsable', 'lente', 'motivo', 'responsable', 'material', 'usuario')
@@ -216,7 +217,8 @@ def guardado_idr():
 # DEF PARA GUARDAR LA FECHA DE **SALIDA** DE SU RESPECTTIVO NUMERO DE ORDEN.
 def guardado_s():
     data = request.get_json()
-    
+    verificacion_de_autenticidad(data.get('usuario'))
+
     numero = data.get('numero_de_orden')
     nota_de_salida = data.get('nota_de_salida')
     usuario_salida = data.get('usuario')
