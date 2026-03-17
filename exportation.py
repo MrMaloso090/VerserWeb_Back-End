@@ -216,6 +216,7 @@ def guardado_idr():
 # DEF PARA GUARDAR LA FECHA DE **SALIDA** DE SU RESPECTTIVO NUMERO DE ORDEN.
 def guardado_s():
     data = request.get_json()
+    
     numero = data.get('numero_de_orden')
     nota_de_salida = data.get('nota_de_salida')
     usuario_salida = data.get('usuario')
@@ -265,6 +266,8 @@ def guardado_s():
 # DEFINICION QUE TOMA LOS DATOS DE TODOS LOS DOCUMENTOS DE COORDINACION PARA CARGARLOS EN LA BASE DE DATOS, ESTA FUNCION ES GENERAL PARA TODOS LOS DOCUMENTOS DE COORDINACION.
 def coordinacion_exportacion_general():
     data= request.get_json()
+    verificacion_de_autenticidad(data.get('usuario'))
+
     table = data.get('titulo')
     with mysql.connector.connect(**connection) as conn:
         cur= conn.cursor()
@@ -308,3 +311,13 @@ def coordinacion_exportacion_general():
             error_detalle = traceback.format_exc()
             return jsonify({'error': f'ERROR INESPERADO AL GUARDAR LA INFORMACION DENTRO DE LA BASE DE DATOS \n{str(e)} \n{error_detalle} \n{valeu_list} \n{column_list}'}), 400
     
+
+# FUNCION QUE PROTEGE DE INTENTOS DE INGRESAR INFORMACION SIN SER PERSONAL AUTORIZADO. 
+def verificacion_de_autenticidad(usuario):
+    with mysql.connector.connect(**connection) as conn:
+        cur = conn.cursor(buffered=True)
+        cur.execute('SELECT * FROM _systema_web_usuarios WHERE usuario = %s', (usuario,))
+        result = cur.fetchone()
+
+        if not result:
+            return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
