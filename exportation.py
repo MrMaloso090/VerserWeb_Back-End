@@ -268,7 +268,9 @@ def guardado_s():
 # DEFINICION QUE TOMA LOS DATOS DE TODOS LOS DOCUMENTOS DE COORDINACION PARA CARGARLOS EN LA BASE DE DATOS, ESTA FUNCION ES GENERAL PARA TODOS LOS DOCUMENTOS DE COORDINACION.
 def coordinacion_exportacion_general():
     data= request.get_json()
-    verificacion_de_autenticidad(data.get('usuario'))
+    
+    if verificacion_de_autenticidad(data.get('usuario')) is True:
+        return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
 
     if verificacion_de_hora() is True:
         return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
@@ -325,7 +327,9 @@ def verificacion_de_autenticidad(usuario):
         result = cur.fetchone()
 
         if not result:
-            return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
+            return True
+        else:
+            return False
         
 
 # FUNCION QUE SE ENCARGA DE VERIFICAR LA HORA Y FILTRAR CUALQUIER INGRESO DE INFORMACION QUE NO SE HAYA REALIZADO DENTRO DE LOS PRIMEROS 15 MINUTOS DE CADA HORA.
