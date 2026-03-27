@@ -269,7 +269,9 @@ def guardado_s():
 def coordinacion_exportacion_general():
     data= request.get_json()
     verificacion_de_autenticidad(data.get('usuario'))
-    verificacion_de_hora()
+
+    if verificacion_de_hora() is True:
+        return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
 
     table = data.get('titulo')
     with mysql.connector.connect(**connection) as conn:
@@ -331,4 +333,6 @@ def verificacion_de_hora():
     minuto_actual = datetime.now(pytz.timezone('America/Bogota')).minute
 
     if minuto_actual > 15:
-        return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
+        return True
+    else:
+        return False
