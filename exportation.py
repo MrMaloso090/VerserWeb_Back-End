@@ -275,8 +275,8 @@ def coordinacion_exportacion_general():
     if verificacion_de_hora() is True:
         return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
     
-    if limite_de_ingresos_por_hora(data.get('usuario')) is True:
-        return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
+    #if limite_de_ingresos_por_hora(data.get('usuario')) is True:
+        #return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
 
     table = data.get('titulo')
     with mysql.connector.connect(**connection) as conn:
