@@ -275,8 +275,8 @@ def coordinacion_exportacion_general():
     if verificacion_de_hora(data.get('usuario')) is True:
         return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
     
-    #if limite_de_ingresos_por_hora(data.get('usuario')) is True:
-        #return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
+    if limite_de_ingresos_por_hora(data.get('usuario')) is True:
+        return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
 
     table = data.get('titulo')
     with mysql.connector.connect(**connection) as conn:
@@ -349,17 +349,21 @@ def verificacion_de_hora(usuario):
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
 def limite_de_ingresos_por_hora(usuario):
     #if usuario == 'Admin': return False
+    try:
 
-    with mysql.connector.connect(**connection) as conn:
-        cur = conn.cursor(buffered=True)
-        cur.execute('SELECT fecha_hora FROM _ingresos_y_salidas WHERE id_usuario = (SELECT id FROM usuario WHERE usuario = %s) ORDER BY fecha_hora DESC LIMIT 1', (usuario,))
-        result = cur.fetchone()
+        with mysql.connector.connect(**connection) as conn:
+            cur = conn.cursor(buffered=True)
+            cur.execute('SELECT fecha_hora FROM _ingresos_y_salidas WHERE id_usuario = (SELECT id FROM usuario WHERE usuario = %s) ORDER BY fecha_hora DESC LIMIT 1', (usuario,))
+            result = cur.fetchone()
 
-        if result:
-            ultima_fecha_hora = result[0]
-            ahora = datetime.now(pytz.timezone('America/Bogota'))
-            diferencia = ahora - ultima_fecha_hora
-            if diferencia.total_seconds() < 2640:  # Menos de 44 minutos (2640 segundos) # PARA QUE SE COMPLEMENTE CON LA VERIFICACION DE HORA Y ASI NO PERMITIR QUE UN USUARIO INGRESE INFORMACION 2 VECES EN LA MISMA HORA.
-                return True
+            if result:
+                ultima_fecha_hora = result[0]
+                ahora = datetime.now(pytz.timezone('America/Bogota'))
+                diferencia = ahora - ultima_fecha_hora
+                if diferencia.total_seconds() < 2640:  # Menos de 44 minutos (2640 segundos) # PARA QUE SE COMPLEMENTE CON LA VERIFICACION DE HORA Y ASI NO PERMITIR QUE UN USUARIO INGRESE INFORMACION 2 VECES EN LA MISMA HORA.
+                    return True
 
-        else: return False
+            else: return False
+        
+    except Exception as e:
+        return jsonify({'error': f'ERROR INESPERADO AL VERIFICAR EL LIMITE DE INGRESOS POR HORA \n{str(e)}'}), 400
