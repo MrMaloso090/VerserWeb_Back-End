@@ -366,4 +366,5 @@ def limite_de_ingresos_por_hora(usuario):
             else: return False
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        error_detalle = traceback.format_exc()
+        return jsonify({'error': f'ERROR INESPERADO AL VERIFICAR EL LIMITE DE INGRESOS POR HORA \n{str(e)} \n{error_detalle}'}), 400
