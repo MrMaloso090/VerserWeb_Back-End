@@ -362,4 +362,4 @@ def limite_de_ingresos_por_hora(usuario):
             if diferencia.total_seconds() < 2640:  # Menos de 44 minutos (2640 segundos) # PARA QUE SE COMPLEMENTE CON LA VERIFICACION DE HORA Y ASI NO PERMITIR QUE UN USUARIO INGRESE INFORMACION 2 VECES EN LA MISMA HORA.
                 return True
 
-    return False
+        else: return False
