@@ -366,4 +366,4 @@ def limite_de_ingresos_por_hora(usuario):
             else: return False
         
     except Exception as e:
-        return jsonify({'error': e}), 400
+        return jsonify({'error': str(e)}), 400
