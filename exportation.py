@@ -275,6 +275,7 @@ def coordinacion_exportacion_general():
         cur= conn.cursor()
         cur.execute('SHOW TABLES')
         resultado = cur.fetchall()
+        res = str(resultado[0]) if resultado else "No tables found"
     
         try:
             if verificacion_de_autenticidad(usuario) is True:
@@ -286,7 +287,7 @@ def coordinacion_exportacion_general():
             if limite_de_ingresos_por_hora(usuario, table) is True:
                 return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
         except Exception as e:
-            return jsonify({'error': f'ERROR INESPERADO: \n{e} \n{resultado[0]} '}), 400
+            return jsonify({'error': f'ERROR INESPERADO: \n{e} \n{res} '}), 400
 
         with mysql.connector.connect(**connection) as conn:
             cur= conn.cursor()
