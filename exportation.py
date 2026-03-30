@@ -355,11 +355,5 @@ def limite_de_ingresos_por_hora(usuario):
         id_usuario = cur.fetchone()
         if not id_usuario:
             return False
-        id_usuario = id_usuario[0]
-        cur.execute('SELECT fecha_hora FROM _ingresos_y_salidas WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario,))
-        ultima_fecha_hora = cur.fetchone()
-        if not ultima_fecha_hora:       
-            return False
-        
         return True
 
