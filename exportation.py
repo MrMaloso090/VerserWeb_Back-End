@@ -356,7 +356,10 @@ def limite_de_ingresos_por_hora(usuario, table):
 
     with mysql.connector.connect(**connection) as conn:
         cur = conn.cursor(buffered=True)
-        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_usuario = (SELECT id FROM _usuario WHERE usuario = %s) ORDER BY fecha_hora DESC LIMIT 1', (usuario,))
+        cur.execute('SELECT id FROM _usuario WHERE usuario = %s', (usuario,))
+        id_usuario = cur.fetchone()
+        if not id_usuario: return False
+        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario[0],))
         result = cur.fetchone()
         if result:
             ultima_fecha_hora = result[0]  # viene naive desde MySQL
