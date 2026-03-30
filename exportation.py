@@ -362,9 +362,5 @@ def limite_de_ingresos_por_hora(usuario):
             return False
         ultima_fecha_hora = ultima_fecha_hora[0]
         fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota').replace(second=0, microsecond=0))
-        
-        if ultima_fecha_hora.year == fecha_hora_actual.year and ultima_fecha_hora.month == fecha_hora_actual.month and ultima_fecha_hora.day == fecha_hora_actual.day and ultima_fecha_hora.hour == fecha_hora_actual.hour:
-            return True
-        else:
-            return False
+        return False
 
