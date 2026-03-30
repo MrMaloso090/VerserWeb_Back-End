@@ -270,21 +270,26 @@ def coordinacion_exportacion_general():
     data= request.get_json()
     usuario = data.get('usuario')
     table = data.get('titulo')
-    
-    try:
-        if verificacion_de_autenticidad(usuario) is True:
-            return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
-
-        if verificacion_de_hora(usuario) is True:
-            return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
-        
-        if limite_de_ingresos_por_hora(usuario, table) is True:
-            return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
-    except Exception as e:
-        return jsonify({'error': f'ERROR INESPERADO: \n{e}'}), 400
 
     with mysql.connector.connect(**connection) as conn:
         cur= conn.cursor()
+        cur.execute('SHOW TABLES')
+        resultado = cur.fetchall()
+    
+        try:
+            if verificacion_de_autenticidad(usuario) is True:
+                return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
+
+            if verificacion_de_hora(usuario) is True:
+                return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
+            
+            if limite_de_ingresos_por_hora(usuario, table) is True:
+                return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
+        except Exception as e:
+            return jsonify({'error': f'ERROR INESPERADO: \n{e} \n{resultado[0]} '}), 400
+
+        with mysql.connector.connect(**connection) as conn:
+            cur= conn.cursor()
 
         try:
             normalized_columns= ('responsable', 'break', 'tratamiento', 'numero_del_ciclo', 'usuario', 'area')
