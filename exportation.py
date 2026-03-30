@@ -349,18 +349,5 @@ def verificacion_de_hora(usuario):
 
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
 def limite_de_ingresos_por_hora(usuario):
-    with mysql.connector.connect(**connection) as conn:
-        cur = conn.cursor()
-        cur.execute('SELECT id FROM usuarios WHERE usuario = %s', (usuario,))
-        id_usuario = cur.fetchone()
-        if not id_usuario:
-            return False
-        id_usuario = id_usuario[0]
-        cur.execute('SELECT fecha_hora FROM _ingresos_y_salidas WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario,))
-        ultima_fecha_hora = cur.fetchone()
-        if not ultima_fecha_hora:       
-            return False
-        ultima_fecha_hora = ultima_fecha_hora[0]
-        fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota').replace(second=0, microsecond=0))
-        return False
+    return False
 
