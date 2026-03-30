@@ -270,27 +270,21 @@ def coordinacion_exportacion_general():
     data= request.get_json()
     usuario = data.get('usuario')
     table = data.get('titulo')
+    
+    try:
+        if verificacion_de_autenticidad(usuario) is True:
+            return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
+
+        if verificacion_de_hora(usuario) is True:
+            return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
+        
+        if limite_de_ingresos_por_hora(usuario, table) is True:
+            return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
+    except Exception as e:
+        return jsonify({'error': f'ERROR INESPERADO: \n{e}'}), 400
 
     with mysql.connector.connect(**connection) as conn:
         cur= conn.cursor()
-        cur.execute('SHOW TABLES')
-        resultado = cur.fetchall()
-        res = str(resultado) if resultado else "No tables found"
-    
-        try:
-            if verificacion_de_autenticidad(usuario) is True:
-                return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
-
-            if verificacion_de_hora(usuario) is True:
-                return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
-            
-            if limite_de_ingresos_por_hora(usuario, table) is True:
-                return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
-        except Exception as e:
-            return jsonify({'error': f'ERROR INESPERADO: \n{e} \n{res} '}), 400
-
-        with mysql.connector.connect(**connection) as conn:
-            cur= conn.cursor()
 
         try:
             normalized_columns= ('responsable', 'break', 'tratamiento', 'numero_del_ciclo', 'usuario', 'area')
@@ -365,7 +359,7 @@ def limite_de_ingresos_por_hora(usuario, table):
         cur.execute('SELECT id FROM __usuario WHERE usuario = %s', (usuario,))
         id_usuario = cur.fetchone()
         if not id_usuario: return False
-        cur.execute(f'SELECT fecha_hora FROM `{table}` WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario[0],))
+        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario[0],))
         result = cur.fetchone()
         if result:
             ultima_fecha_hora = result[0]  # viene naive desde MySQL
