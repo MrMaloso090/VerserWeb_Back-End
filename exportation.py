@@ -360,7 +360,6 @@ def limite_de_ingresos_por_hora(usuario):
         ultima_fecha_hora = cur.fetchone()
         if not ultima_fecha_hora:       
             return False
-        ultima_fecha_hora = ultima_fecha_hora[0]
-        fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota').replace(second=0, microsecond=0))
+        
         return True
 
