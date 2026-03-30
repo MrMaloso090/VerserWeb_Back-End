@@ -351,9 +351,6 @@ def verificacion_de_hora(usuario):
 def limite_de_ingresos_por_hora(usuario):
     with mysql.connector.connect(**connection) as conn:
         cur = conn.cursor()
-        cur.execute('SELECT id FROM usuarios WHERE usuario = %s', (usuario,))
-        id_usuario = cur.fetchone()
-        if not id_usuario:
-            return False
+
         return True
 
