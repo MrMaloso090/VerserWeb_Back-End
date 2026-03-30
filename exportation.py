@@ -275,7 +275,7 @@ def coordinacion_exportacion_general():
         cur= conn.cursor()
         cur.execute('SHOW TABLES')
         resultado = cur.fetchall()
-        res = str(resultado[0]) if resultado else "No tables found"
+        res = str(resultado[1]) if resultado else "No tables found"
     
         try:
             if verificacion_de_autenticidad(usuario) is True:
