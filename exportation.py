@@ -268,14 +268,15 @@ def guardado_s():
 # DEFINICION QUE TOMA LOS DATOS DE TODOS LOS DOCUMENTOS DE COORDINACION PARA CARGARLOS EN LA BASE DE DATOS, ESTA FUNCION ES GENERAL PARA TODOS LOS DOCUMENTOS DE COORDINACION.
 def coordinacion_exportacion_general():
     data= request.get_json()
+    usuario = data.get('usuario')
     
-    if verificacion_de_autenticidad(data.get('usuario')) is True:
+    if verificacion_de_autenticidad(usuario) is True:
         return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
 
-    if verificacion_de_hora(data.get('usuario')) is True:
+    if verificacion_de_hora(usuario) is True:
         return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
     
-    if limite_de_ingresos_por_hora(data.get('usuario')) is True:
+    if limite_de_ingresos_por_hora(usuario) is True:
         return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
 
     table = data.get('titulo')
@@ -348,23 +349,22 @@ def verificacion_de_hora(usuario):
 
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
 def limite_de_ingresos_por_hora(usuario):
-    #if usuario == 'Admin': return False
-    try:
-
-        with mysql.connector.connect(**connection) as conn:
-            cur = conn.cursor(buffered=True)
-            cur.execute('SELECT fecha_hora FROM _ingresos_y_salidas WHERE id_usuario = (SELECT id FROM usuario WHERE usuario = %s) ORDER BY fecha_hora DESC LIMIT 1', (usuario,))
-            result = cur.fetchone()
-
-            if result:
-                ultima_fecha_hora = result[0]
-                ahora = datetime.now(pytz.timezone('America/Bogota'))
-                diferencia = ahora - ultima_fecha_hora
-                if diferencia.total_seconds() < 2640:  # Menos de 44 minutos (2640 segundos) # PARA QUE SE COMPLEMENTE CON LA VERIFICACION DE HORA Y ASI NO PERMITIR QUE UN USUARIO INGRESE INFORMACION 2 VECES EN LA MISMA HORA.
-                    return True
-
-            else: return False
+    with mysql.connector.connect(**connection) as conn:
+        cur = conn.cursor()
+        cur.execute('SELECT id FROM usuarios WHERE usuario = %s', (usuario,))
+        id_usuario = cur.fetchone()
+        if not id_usuario:
+            return False
+        id_usuario = id_usuario[0]
+        cur.execute('SELECT fecha_hora FROM _ingresos_y_salidas WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario,))
+        ultima_fecha_hora = cur.fetchone()
+        if not ultima_fecha_hora:       
+            return False
+        ultima_fecha_hora = ultima_fecha_hora[0]
+        fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota').replace(second=0, microsecond=0))
         
-    except Exception as e:
-        error_detalle = traceback.format_exc()
-        return jsonify({'error': f'ERROR INESPERADO AL VERIFICAR EL LIMITE DE INGRESOS POR HORA \n{str(e)} \n{error_detalle}'}), 400
+        if ultima_fecha_hora.year == fecha_hora_actual.year and ultima_fecha_hora.month == fecha_hora_actual.month and ultima_fecha_hora.day == fecha_hora_actual.day and ultima_fecha_hora.hour == fecha_hora_actual.hour:
+            return True
+        else:
+            return False
+
