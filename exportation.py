@@ -352,7 +352,7 @@ def verificacion_de_hora(usuario):
 
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
 def limite_de_ingresos_por_hora(usuario, table):
-    # if usuario == 'Admin': return False
+    if usuario == 'Admin': return False
 
     with mysql.connector.connect(**connection) as conn:
         cur = conn.cursor(buffered=True)
