@@ -356,18 +356,12 @@ def limite_de_ingresos_por_hora(usuario, table):
 
     with mysql.connector.connect(**connection) as conn:
         cur = conn.cursor(buffered=True)
-        cur.execute('SELECT id FROM __usuario WHERE usuario = %s', (usuario,))
-        id_usuario = cur.fetchone()
-        if not id_usuario: return False
-        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_usuario = %s ORDER BY fecha_hora DESC LIMIT 1', (id_usuario[0],))
+        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_usuario = (SELECT id FROM __usuario WHERE usuario = %s) ORDER BY fecha_hora DESC LIMIT 1', (usuario,))
         result = cur.fetchone()
         if result:
-            ultima_fecha_hora = result[0]  # viene naive desde MySQL
-            ahora = datetime.now()         # también naive
-
-            diferencia = ahora - ultima_fecha_hora
-
-            if diferencia.total_seconds() < 2700: # 2700 segundos son 45 minutos, los 45 minutos se complementan con los 15 minutos de tolerancia que se tienen al inicio de cada hora, permite un ingreso por usuario cada hora.
-                return True
-
-    return False
+            fecha_hora_ingresada = str(result[0])
+            fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+            diferecia = (datetime.strptime(fecha_hora_actual, "%Y-%m-%d %H:%M:%S") - datetime.strptime(fecha_hora_ingresada, "%Y-%m-%d %H:%M:%S")).total_seconds()
+            if int(diferecia) < 2400: return True
+            else: return False
+        else: return False
