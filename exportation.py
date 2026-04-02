@@ -280,7 +280,7 @@ def coordinacion_exportacion_general():
             return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
         
         if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
-            return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
+            return jsonify({'error': 'Cada responsable solo puede ingresar información una vez cada hora'}), 400
     except Exception as e:
         return jsonify({'error': f'ERROR INESPERADO: \n{e}'}), 400
 
@@ -353,7 +353,7 @@ def verificacion_de_hora(usuario):
 
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
 def limite_de_ingresos_por_hora(usuario, table, responsable):
-    #if usuario == 'Admin': return False
+    if usuario == 'Admin': return False
 
     with mysql.connector.connect(**connection) as conn:
         cur = conn.cursor(buffered=True)
