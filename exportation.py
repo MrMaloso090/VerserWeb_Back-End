@@ -270,6 +270,7 @@ def coordinacion_exportacion_general():
     data= request.get_json()
     usuario = data.get('usuario')
     table = data.get('titulo')
+    responsable = data.get('responsable')
     
     try:
         if verificacion_de_autenticidad(usuario) is True:
@@ -278,8 +279,8 @@ def coordinacion_exportacion_general():
         if verificacion_de_hora(usuario) is True:
             return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
         
-        #if limite_de_ingresos_por_hora(usuario, table) is True:
-            #return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
+        if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
+            return jsonify({'error': 'El usuario solo puede ingresar información una vez por hora'}), 400
     except Exception as e:
         return jsonify({'error': f'ERROR INESPERADO: \n{e}'}), 400
 
@@ -351,12 +352,12 @@ def verificacion_de_hora(usuario):
     
 
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
-def limite_de_ingresos_por_hora(usuario, table):
-    if usuario == 'Admin': return False
+def limite_de_ingresos_por_hora(usuario, table, responsable):
+    #if usuario == 'Admin': return False
 
     with mysql.connector.connect(**connection) as conn:
         cur = conn.cursor(buffered=True)
-        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_usuario = (SELECT id FROM __usuario WHERE usuario = %s) ORDER BY fecha_hora DESC LIMIT 1', (usuario,))
+        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_responsable = (SELECT id FROM __responsable WHERE responsable = %s) ORDER BY fecha_hora DESC LIMIT 1', (responsable,))
         result = cur.fetchone()
         if result:
             fecha_hora_ingresada = str(result[0])
