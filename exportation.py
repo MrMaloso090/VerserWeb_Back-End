@@ -355,14 +355,18 @@ def verificacion_de_hora(usuario):
 def limite_de_ingresos_por_hora(usuario, table, responsable):
     if usuario == 'Admin': return False
 
-    with mysql.connector.connect(**connection) as conn:
-        cur = conn.cursor(buffered=True)
-        cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_responsable = (SELECT id FROM __responsable WHERE responsable = %s) ORDER BY fecha_hora DESC LIMIT 1', (responsable,))
-        result = cur.fetchone()
-        if result:
-            fecha_hora_ingresada = str(result[0])
-            fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
-            diferecia = (datetime.strptime(fecha_hora_actual, "%Y-%m-%d %H:%M:%S") - datetime.strptime(fecha_hora_ingresada, "%Y-%m-%d %H:%M:%S")).total_seconds()
-            if int(diferecia) < 2400: return True
+    if table == '___registro_de_control_inventario': 
+        return False
+
+    else:
+        with mysql.connector.connect(**connection) as conn:
+            cur = conn.cursor(buffered=True)
+            cur.execute(f'SELECT fecha_hora FROM {table} WHERE id_responsable = (SELECT id FROM __responsable WHERE responsable = %s) ORDER BY fecha_hora DESC LIMIT 1', (responsable,))
+            result = cur.fetchone()
+            if result:
+                fecha_hora_ingresada = str(result[0])
+                fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M:%S")
+                diferecia = (datetime.strptime(fecha_hora_actual, "%Y-%m-%d %H:%M:%S") - datetime.strptime(fecha_hora_ingresada, "%Y-%m-%d %H:%M:%S")).total_seconds()
+                if int(diferecia) < 2400: return True
+                else: return False
             else: return False
-        else: return False
