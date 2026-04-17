@@ -312,8 +312,13 @@ def coordinacion_exportacion_general():
                 column_list.append(column)
                 valeu_list.append(valeu)
 
+            fecha_hora = datetime.now(pytz.timezone('America/Bogota'))
             column_list.append('fecha_hora')
-            valeu_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
+            valeu_list.append(fecha_hora.strftime("%Y-%m-%d %H:%M"))
+            if table != '___registro_de_control_inventario':
+                turno = identificacion_de_turno(fecha_hora.hour)
+                column_list.append('id_turno')
+                valeu_list.append(turno)
 
             columns_str = ', '.join(column_list)
             placeholders_str = ', '.join(['%s'] * len(valeu_list))
@@ -370,3 +375,14 @@ def limite_de_ingresos_por_hora(usuario, table, responsable):
                 if int(diferecia) < 2400: return True
                 else: return False
             else: return False
+
+
+# FUNCION QUE IDENTIFICA EN QUE TURNO FUE GUARDAD LA INFORMACION.
+def identificacion_de_turno(solo_hora):
+    if solo_hora >= 6 and solo_hora < 14:
+        turno = 1
+    elif solo_hora >= 14 and solo_hora < 22:
+        turno = 2 
+    else:
+        turno = 3
+    return turno
