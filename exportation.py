@@ -315,7 +315,7 @@ def coordinacion_exportacion_general():
             fecha_hora = datetime.now(pytz.timezone('America/Bogota'))
             column_list.append('fecha_hora')
             valeu_list.append(fecha_hora.strftime("%Y-%m-%d %H:%M"))
-            if table != '___registro_de_control_inventario' or table != '___registro_de_control_ingresos_logisticos':
+            if table != '___registro_de_control_inventario' and table != '___registro_de_control_ingresos_logisticos':
                 turno = identificacion_de_turno(fecha_hora.hour)
                 column_list.append('id_turno')
                 valeu_list.append(turno)
