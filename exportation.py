@@ -276,7 +276,7 @@ def coordinacion_exportacion_general():
         if verificacion_de_autenticidad(usuario) is True:
             return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
 
-        if verificacion_de_hora(usuario) is True:
+        if verificacion_de_hora(usuario, table) is True:
             return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
         
         if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
@@ -288,7 +288,7 @@ def coordinacion_exportacion_general():
         cur= conn.cursor()
 
         try:
-            normalized_columns= ('responsable', 'break', 'tratamiento', 'numero_del_ciclo', 'usuario', 'area')
+            normalized_columns= ('responsable', 'break', 'tratamiento', 'numero_del_ciclo', 'usuario', 'area', 'agencia', 'horario')
             column_list = []
             valeu_list = []
             for column, valeu in data.items():
@@ -315,7 +315,7 @@ def coordinacion_exportacion_general():
             fecha_hora = datetime.now(pytz.timezone('America/Bogota'))
             column_list.append('fecha_hora')
             valeu_list.append(fecha_hora.strftime("%Y-%m-%d %H:%M"))
-            if table != '___registro_de_control_inventario':
+            if table != '___registro_de_control_inventario' or table != '___registro_de_control_ingresos_logisticos':
                 turno = identificacion_de_turno(fecha_hora.hour)
                 column_list.append('id_turno')
                 valeu_list.append(turno)
@@ -346,8 +346,9 @@ def verificacion_de_autenticidad(usuario):
         
 
 # FUNCION QUE SE ENCARGA DE VERIFICAR LA HORA Y FILTRAR CUALQUIER INGRESO DE INFORMACION QUE NO SE HAYA REALIZADO DENTRO DE LOS PRIMEROS 15 MINUTOS DE CADA HORA.
-def verificacion_de_hora(usuario):
+def verificacion_de_hora(usuario, table):
     if usuario == 'Admin': return False
+    if table == '___registro_de_control_ingresos_logisticos': return False
 
     minuto_actual = datetime.now(pytz.timezone('America/Bogota')).minute
     if minuto_actual > 15:
@@ -360,7 +361,7 @@ def verificacion_de_hora(usuario):
 def limite_de_ingresos_por_hora(usuario, table, responsable):
     if usuario == 'Admin': return False
 
-    if table == '___registro_de_control_inventario': 
+    if table == '___registro_de_control_inventario' or table == '___registro_de_control_ingresos_logisticos': 
         return False
 
     else:
