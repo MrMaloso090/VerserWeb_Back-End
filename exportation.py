@@ -348,7 +348,6 @@ def verificacion_de_autenticidad(usuario):
 # FUNCION QUE SE ENCARGA DE VERIFICAR LA HORA Y FILTRAR CUALQUIER INGRESO DE INFORMACION QUE NO SE HAYA REALIZADO DENTRO DE LOS PRIMEROS 15 MINUTOS DE CADA HORA.
 def verificacion_de_hora(usuario, table):
     if usuario == 'Admin': return False
-    if table == '___registro_de_control_ingresos_logisticos': return False
 
     minuto_actual = datetime.now(pytz.timezone('America/Bogota')).minute
     if minuto_actual > 15:
