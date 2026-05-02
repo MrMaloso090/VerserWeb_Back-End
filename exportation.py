@@ -276,7 +276,7 @@ def coordinacion_exportacion_general():
         if verificacion_de_autenticidad(usuario) is True:
             return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
 
-        if verificacion_de_hora(usuario, table) is True:
+        if verificacion_de_hora(usuario) is True:
             return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
         
         if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
@@ -346,7 +346,7 @@ def verificacion_de_autenticidad(usuario):
         
 
 # FUNCION QUE SE ENCARGA DE VERIFICAR LA HORA Y FILTRAR CUALQUIER INGRESO DE INFORMACION QUE NO SE HAYA REALIZADO DENTRO DE LOS PRIMEROS 15 MINUTOS DE CADA HORA.
-def verificacion_de_hora(usuario, table):
+def verificacion_de_hora(usuario):
     if usuario == 'Admin': return False
 
     minuto_actual = datetime.now(pytz.timezone('America/Bogota')).minute
