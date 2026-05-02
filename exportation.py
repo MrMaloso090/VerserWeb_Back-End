@@ -361,7 +361,7 @@ def verificacion_de_hora(usuario, table):
 def limite_de_ingresos_por_hora(usuario, table, responsable):
     if usuario == 'Admin': return False
 
-    if table == '___registro_de_control_inventario' or table == '___registro_de_control_ingresos_logisticos': 
+    if table == '___registro_de_control_inventario': 
         return False
 
     else:
