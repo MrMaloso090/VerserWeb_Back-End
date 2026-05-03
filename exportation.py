@@ -276,11 +276,13 @@ def coordinacion_exportacion_general():
         if verificacion_de_autenticidad(usuario) is True:
             return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
 
-        if verificacion_de_hora(usuario) is True:
-            return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
-        
-        if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
-            return jsonify({'error': 'Cada responsable solo puede ingresar información una vez cada hora'}), 400
+        if table != '___registro_de_control_ingresos_logisticos':
+            if verificacion_de_hora(usuario) is True:
+                return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
+            
+            if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
+                return jsonify({'error': 'Cada responsable solo puede ingresar información una vez cada hora'}), 400
+            
     except Exception as e:
         return jsonify({'error': f'ERROR INESPERADO: \n{e}'}), 400
 
