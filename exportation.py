@@ -271,6 +271,8 @@ def coordinacion_exportacion_general():
     usuario = data.get('usuario')
     table = data.get('titulo')
     responsable = data.get('responsable')
+
+    fecha_hora = datetime.now(pytz.timezone('America/Bogota'))
     
     try:
         if verificacion_de_autenticidad(usuario) is True:
@@ -280,8 +282,12 @@ def coordinacion_exportacion_general():
             if verificacion_de_hora(usuario) is True:
                 return jsonify({'error': 'No se puede ingresar información después de los primeros 15 minutos de cada hora'}), 400
             
-            if limite_de_ingresos_por_hora(usuario, table, responsable) is True:
+            if limite_de_ingresos_por_hora_inventario(usuario, table, responsable) is True:
                 return jsonify({'error': 'Cada responsable solo puede ingresar información una vez cada hora'}), 400
+        
+        if table == '___registro_de_control_ingresos':
+            if limite_regisstro_de_control_coordinacion_MODULO_INGRESOS(table, fecha_hora.date()) is True:
+                return jsonify({'error': 'No se pueden ingresar mas de 20 datos al dia en el modulo: Control de Ingresos'}), 400
             
     except Exception as e:
         return jsonify({'error': f'ERROR INESPERADO: \n{e}'}), 400
@@ -314,7 +320,6 @@ def coordinacion_exportacion_general():
                 column_list.append(column)
                 valeu_list.append(valeu)
 
-            fecha_hora = datetime.now(pytz.timezone('America/Bogota'))
             column_list.append('fecha_hora')
             valeu_list.append(fecha_hora.strftime("%Y-%m-%d %H:%M"))
             if table != '___registro_de_control_inventario' and table != '___registro_de_control_ingresos_logisticos':
@@ -359,7 +364,7 @@ def verificacion_de_hora(usuario):
     
 
 # LIMITE QUE NO PERMITE INGRESAR 2 VECES A UN MISMO USUARIO EN LA MISMA HORA.
-def limite_de_ingresos_por_hora(usuario, table, responsable):
+def limite_de_ingresos_por_hora_inventario(usuario, table, responsable):
     if usuario == 'Admin': return False
 
     if table == '___registro_de_control_inventario': 
@@ -388,3 +393,15 @@ def identificacion_de_turno(solo_hora):
     else:
         turno = 3
     return turno
+
+# LIMITE EN REGISTRO DE CONTROL COORDINACION EN EL MODULO INGRESO. MAXIMO 20 DATOS AL DIA.
+def limite_regisstro_de_control_coordinacion_MODULO_INGRESOS(table, fecha):
+    fecha = fecha.strftime('%Y-%m-%d')
+    with mysql.connector.connect(**connection) as conn:
+        cur= conn.cursor(buffered= True)
+        cur.execute(f'SELECT COUNT(*) FROM {table} WHERE DATE(fecha_hora) = %s', (fecha,))
+        resultado = cur.fetchone()[0]
+        if resultado <=20:
+            return False
+        else:
+            return True
