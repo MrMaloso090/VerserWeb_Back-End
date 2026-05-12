@@ -386,9 +386,9 @@ def limite_de_ingresos_por_hora_inventario(usuario, table, responsable):
 
 # FUNCION QUE IDENTIFICA EN QUE TURNO FUE GUARDAD LA INFORMACION.
 def identificacion_de_turno(solo_hora):
-    if solo_hora >= 6 and solo_hora < 14:
+    if solo_hora >= 7 and solo_hora < 15:
         turno = 1
-    elif solo_hora >= 14 and solo_hora < 22:
+    elif solo_hora >= 15 and solo_hora < 23:
         turno = 2 
     else:
         turno = 3
