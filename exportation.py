@@ -179,8 +179,19 @@ def guardado_idr():
                 columns_list.append(key)
                 values_list.append(value)
 
+            fecha_hora_actual = datetime.now(pytz.timezone('America/Bogota'))
             columns_list.append('fecha')
-            values_list.append(datetime.now(pytz.timezone('America/Bogota')).strftime("%Y-%m-%d %H:%M"))
+            values_list.append(fecha_hora_actual.strftime("%Y-%m-%d %H:%M"))
+
+            # SE DETERMINA EL HORARIO EN EL QUE SE REALIZO EL INGRESO, DIVIDIENDOLO ENTRE DIA/NOCHE.
+            if table == '_ingresos_y_salidas':
+                hora = fecha_hora_actual.hour
+                if 6 <= hora < 18:
+                    turno = 1
+                else:
+                    turno = 2
+                columns_list.append('id_turno')
+                values_list.append(turno)
 
 
             # FUNCION PARA CALCULAR EL PRECIO DE LOS DANNOS
