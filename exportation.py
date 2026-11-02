@@ -367,8 +367,17 @@ def verificacion_de_autenticidad(usuario):
 def verificacion_de_hora(usuario):
     if usuario == 'Admin': return False
 
-    minuto_actual = datetime.now(pytz.timezone('America/Bogota')).minute
-    if minuto_actual > 15:
+    ahora = datetime.now(pytz.timezone('America/Bogota'))
+    hora_actual = ahora.hour
+    minuto_actual = ahora.minute
+
+    if hora_actual == 5: # SI SON LAS 5AM LIMITA LOS PRIMEROS 30 MINUTOS
+        if minuto_actual > 30:
+            return True
+        else:
+            return False
+
+    elif minuto_actual > 15: # LIMITA SOLO LOS PRIMEROS 15 MINUTOS DE CADA HORA.
         return True
     else:
         return False
