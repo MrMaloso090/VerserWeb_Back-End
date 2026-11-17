@@ -27,7 +27,7 @@ def dannos_responsables():
     return importar_tabla_mysql('_systema_web_dannos_responsables')
 
 
-#################### FUNCIONE QUE REALIZA LA VALIDACION DEL LOGIN DE LOS USUARIOS ####################
+#################### FUNCION INVOCADA POR LA WEB --  QUE REALIZA LA VALIDACION DEL LOGIN DE LOS USUARIOS ####################
 @app.route("/login_usuario", methods=["POST"])
 def inicio_de_sesion():
     return login_usuarios()
