@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 # Carga las variables del .env
-load_dotenv()
+load_dotenv(r"C:\Users\Usuario\OneDrive\Documentos\.Codigos\.env")
 # CONECCION MySQL.
 connection = {
     'user': os.environ.get('DB_USER'),
